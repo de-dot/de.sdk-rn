@@ -1,5 +1,5 @@
 import Utils from './utils'
-import MSI, { type MSIInterface, type MSIRef } from './allend/MSI'
+import MSI, { type MSIInterface, type MSIProps, type MSIRef } from './allend/MSI'
 import Auth from './backend/Auth'
 import Order from './allend/DClient/Order'
 import Event from './allend/DClient/Event'
@@ -14,6 +14,7 @@ export {
   Auth,
   MSI,
   type MSIInterface,
+  type MSIProps,
   type MSIRef,
   Utils,
   DClient
