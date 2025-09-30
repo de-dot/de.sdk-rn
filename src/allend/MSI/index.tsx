@@ -196,6 +196,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         onMessage={handleMessage}
         injectedJavaScript={`
           ${getInjectedConsole()}
+          alert('Hello from Remote!')
           ${wioRef.current?.getInjectedJavaScript()}
         `}
         javaScriptEnabled={true}

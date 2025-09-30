@@ -1327,7 +1327,7 @@
     expect "^29.0.0"
     pretty-format "^29.0.0"
 
-"@types/node@*", "@types/node@^24.6.0":
+"@types/node@*":
   version "24.6.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-24.6.0.tgz#5dd8d4eca0bba7dd81d853e7fadc96b322ff84f6"
   integrity sha512-F1CBxgqwOMc4GKJ7eY22hWhBVQuMYTtqI8L0FcszYcpYX0fzfDGpez22Xau8Mgm7O9fI+zA/TYIdq3tGWfweBA==
@@ -4686,12 +4686,11 @@ webidl-conversions@^3.0.0:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
   integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
 
-webview.io@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/webview.io/-/webview.io-1.0.0.tgz#aa0b91d8821be34e27aaeb0ed066a036f1030ae4"
-  integrity sha512-QGK4b1+836sJgR7s3qIGKAi9VR5qm4VnR4SXvxDywyZiadgaceJQf/qGPmx0lLtWROPTwpDKVlI0/Pjzg74X1w==
+webview.io@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/webview.io/-/webview.io-1.0.1.tgz#f7780adc10bebd39d72d9b2431c59d915441eed5"
+  integrity sha512-1Zc2nr+ZUkrnsuw8FnvAIquR6zXSDkGsDD9iki6W0KspUVo5E00FFPYbyYieFfj4D3T9LMDNpw/E/Dp+JQt6Ow==
   dependencies:
-    "@types/node" "^24.6.0"
     events "^3.3.0"
 
 whatwg-fetch@^3.0.0:
