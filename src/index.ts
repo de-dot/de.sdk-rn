@@ -1,5 +1,5 @@
 import Utils from './utils'
-import MSI from './allend/MSI'
+import MSI, { type MSIInterface, type MSIRef } from './allend/MSI'
 import Auth from './backend/Auth'
 import Order from './allend/DClient/Order'
 import Event from './allend/DClient/Event'
@@ -13,6 +13,8 @@ const DClient = { Client, Order, Event }
 export {
   Auth,
   MSI,
+  type MSIInterface,
+  type MSIRef,
   Utils,
   DClient
 }
