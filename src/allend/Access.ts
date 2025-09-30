@@ -20,7 +20,7 @@ export default class Access {
       : 'http://api.dedot.io:24800'
   }
 
-  async request<Response>( options: HTTPRequestOptions ): Promise<Response> {
+  async request<Response>({ url, ...options }: HTTPRequestOptions ): Promise<Response> {
     const rawOptions: any = {
       method: 'GET',
       headers: {
@@ -34,7 +34,8 @@ export default class Access {
 
     if( options.body ){
       rawOptions.headers['content-type'] = 'application/json'
-      options.body = JSON.stringify( options.body )
+      if( typeof options.body === 'object' )
+        options.body = JSON.stringify( options.body )
     }
 
     if( typeof options.headers == 'object' )
@@ -44,12 +45,9 @@ export default class Access {
       }
 
     options = { ...rawOptions, ...options }
-
-    if( !options.url ) throw new Error('Undefined request <url>')
-    const url = `${this.baseURL}/v${this.version}/${options.url.replace(/^\//, '')}`
-
+    
     // React Native has built-in fetch
-    return await ( await fetch( url, options ) ).json() as Response
+    return await ( await fetch(`${this.baseURL}/v${this.version}/${url.replace(/^\//, '')}`, options ) ).json() as Response
   }
 
   setToken( token: string ): void { 

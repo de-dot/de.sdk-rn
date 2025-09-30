@@ -29,7 +29,7 @@ export default class Auth {
     this.autorefresh = options?.autorefresh || false
   }
 
-  private async request<T>( options: AuthRequestOptions ): Promise<T>{
+  private async request<T>({ url, ...options }: AuthRequestOptions ): Promise<T>{
     const rawOptions: any = {
       method: 'GET',
       headers: {
@@ -46,16 +46,16 @@ export default class Auth {
     if( this.accessToken )
       rawOptions.headers.authorization = `Bearer ${this.accessToken}`
 
-    if( options.body )
+    if( options.body ){
       rawOptions.headers['content-type'] = 'application/json'
+      if( typeof options.body === 'object' )
+        options.body = JSON.stringify( options.body )
+    }
 
     options = { ...rawOptions, ...options }
-    if( !options.url )
-      throw new Error('Undefined request <url>')
 
-    console.log('Auth request', `${this.baseURL}/v${this.version}/${options.url.replace(/^\//, '')}`, options )
-    
-    const response = await fetch(`${this.baseURL}/v${this.version}/${options.url.replace(/^\//, '')}`, options )
+    console.log('Auth request', `${this.baseURL}/v${this.version}/${url.replace(/^\//, '')}`, options )
+    const response = await fetch(`${this.baseURL}/v${this.version}/${url.replace(/^\//, '')}`, options )
     
     return await response.json() as T
   }
