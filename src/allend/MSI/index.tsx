@@ -18,6 +18,44 @@ export interface MSIInterface {
   plugins: Plugins
 }
 
+function getInjectedConsole(): string {
+  return `
+    (function() {
+      // Forward console logs to React Native
+      const originalLog = console.log;
+      const originalError = console.error;
+      const originalWarn = console.warn;
+
+      console.log = function(...args) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: '__console',
+          level: 'log',
+          message: args.map(a => String(a)).join(' ')
+        }));
+        originalLog.apply(console, args);
+      };
+
+      console.error = function(...args) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: '__console',
+          level: 'error',
+          message: args.map(a => String(a)).join(' ')
+        }));
+        originalError.apply(console, args);
+      };
+
+      console.warn = function(...args) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: '__console',
+          level: 'warn',
+          message: args.map(a => String(a)).join(' ')
+        }));
+        originalWarn.apply(console, args);
+      };
+    })();
+  `;
+}
+
 const REQUIRED_FEATURES = ['geolocation']
 const REGISTERED_PLUGINS: Record<string, Plugin<any>> = {}
 
@@ -68,7 +106,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       const wio = wioRef.current!
 
       // Bind with access token and origin
-      wio.emit('bind', { 
+      wio.emit('bind', {
         ...props, 
         origin: 'react-native' 
       }, ( error: string | boolean ) => {
@@ -147,7 +185,10 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         source={{ uri: mapUrl }}
         style={styles.webview}
         onMessage={handleMessage}
-        injectedJavaScript={wioRef.current?.getInjectedJavaScript()}
+        injectedJavaScript={`
+          ${getInjectedConsole()}
+          ${wioRef.current?.getInjectedJavaScript()}
+        `}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         geolocationEnabled={true}
