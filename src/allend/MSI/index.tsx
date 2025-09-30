@@ -89,6 +89,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
 
   useEffect(() => {
     // Initialize WIO bridge
+    console.log('Initializing WIO bridge from MSI component')
     wioRef.current = new WIO({ 
       type: 'WEBVIEW',
       debug: props.env === 'dev'
@@ -101,15 +102,19 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     wioRef.current.initiate( webViewRef, baseURL )
 
     // Setup event listeners
+    console.log('Setup event listeners from MSI component', wioRef.current)
     wioRef.current
     .once('connect', () => {
+      console.log('WIO connected from MSI component', wioRef.current)
       const wio = wioRef.current!
 
       // Bind with access token and origin
+      console.log('Initiate binding with access token and origin from MSI component', props)
       wio.emit('bind', {
         ...props, 
         origin: 'react-native' 
       }, ( error: string | boolean ) => {
+        console.log('WIO bind from MSI component', error)
         if( error ){
           const errorObj = new Error( typeof error === 'string' ? error : 'Connection failed' )
           setHasError( true )
@@ -121,12 +126,13 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       })
     })
     .on('error', ( error: Error | string ) => {
+      console.log('WIO error from MSI component', error)
       const errorObj = typeof error === 'object' ? error : new Error( error )
       setHasError( true )
       props.onError?.( errorObj )
     })
     .on('ready', () => {
-      console.log('MSI ready')
+      console.log('MSI ready', wioRef.current)
       props.onReady?.()
 
       // Initialize API
@@ -142,6 +148,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         handlesRef.current = handles
         pluginsRef.current = plugins
 
+        console.log('MSI loaded', controls, handles, plugins)
         props.onLoaded?.({
           controls,
           handles,
