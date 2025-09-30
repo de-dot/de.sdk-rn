@@ -12,14 +12,21 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.d.ts"
     }
   },
   "author": "SCOREX Corporation",
   "private": false,
   "scripts": {
     "build:tsc": "rimraf ./dist && tsc",
-    "compile": "yarn build:tsc",
+    "build:copy-types": "mkdir -p dist/types && cp -r src/types/* dist/types/",
+    "build": "yarn build:tsc && yarn build:copy-types",
+    "compile": "yarn build",
     "prepack": "yarn run compile",
     "test": "echo 'Error: No test specified' && exit 1",
     "test:msi": "yarn build:tsc && jest test/msi.test.js",
