@@ -4,7 +4,7 @@
  */
 
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react'
-import { View, StyleSheet, AppState, AppStateStatus } from 'react-native'
+import { View, Text, StyleSheet, AppState, AppStateStatus } from 'react-native'
 import { WebView } from 'react-native-webview'
 import WIO from 'webview.io'
 import Controls from './Controls'
@@ -68,6 +68,7 @@ export interface MSIProps extends MapOptions {
 
 export interface MSIRef extends MSIInterface {
   isReady: () => boolean
+  retry: () => void
 }
 
 // MSI Component
@@ -78,108 +79,205 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   const handlesRef = useRef<Handles | null>(null)
   const pluginsRef = useRef<Plugins | null>(null)
   const [isConnected, setIsConnected] = useState(false)
+  const [isReady, setIsReady] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const [connectionAttempts, setConnectionAttempts] = useState(0)
+  const isInitializedRef = useRef(false)
 
   // Expose API via ref
   useImperativeHandle( ref, () => ({
     controls: controlsRef.current!,
     handles: handlesRef.current!,
     plugins: pluginsRef.current!,
-    isReady: () => isConnected
+    isReady: () => isConnected && isReady,
+    retry: () => {
+      setHasError(false)
+      setConnectionAttempts(0)
+      initializeConnection()
+    }
   }))
 
-  useEffect(() => {
-    // Initialize WIO bridge
-    console.log('Initializing WIO bridge from MSI component')
-    wioRef.current = new WIO({
-      type: 'WEBVIEW',
-      debug: props.env === 'dev'
+  const initializeAPI = () => {
+    if( isInitializedRef.current || !wioRef.current || !isConnected || !isReady ) return
+
+    console.log('[MSI] Initializing API components')
+    
+    const
+    controls = new Controls( wioRef.current, props ),
+    handles = new Handles( wioRef.current, controls, props ),
+    plugins = new Plugins( wioRef.current, handles, controls, props )
+    
+    plugins.mount( REGISTERED_PLUGINS )
+
+    controlsRef.current = controls
+    handlesRef.current = handles
+    pluginsRef.current = plugins
+    isInitializedRef.current = true
+
+    console.log('[MSI] API initialized successfully')
+    props.onLoaded?.({
+      controls,
+      handles,
+      plugins
     })
+  }
+
+  const performBinding = async () => {
+    if( !wioRef.current ) return
+
+    console.log('[MSI] Performing bind with access token')
+    
+    try {
+      // Use emitAsync for better error handling
+      await wioRef.current.emitAsync('bind', { ...props, origin: 'react-native' }, 10000) // 10 second timeout for binding
+
+      console.log('[MSI] Bind successful')
+      setIsConnected(true)
+      setHasError(false)
+    }
+    catch( error ) {
+      console.error('[MSI] Bind failed:', error)
+      const errorObj = error instanceof Error ? error : new Error(String(error))
+      setHasError(true)
+      props.onError?.(errorObj)
+    }
+  }
+
+  const initializeConnection = () => {
+    if( !wioRef.current || !webViewRef.current ) return
 
     const baseURL = props.env === 'dev' 
       ? 'http://localhost:4800' 
       : 'https://msi.dedot.io'
 
+    console.log('[MSI] Initiating WIO connection to', baseURL)
     wioRef.current.initiate( webViewRef, baseURL )
+  }
+
+  useEffect(() => {
+    // Initialize WIO bridge
+    console.log('[MSI] Creating WIO instance')
+    wioRef.current = new WIO({
+      type: 'WEBVIEW',
+      debug: props.env === 'dev',
+      connectionTimeout: 15000, // 15 seconds for initial connection
+      connectionPingInterval: 2000,
+      maxConnectionAttempts: 5,
+      autoReconnect: true,
+      heartbeatInterval: 30000
+    })
 
     // Setup event listeners
-    console.log('Setup event listeners from MSI component')
+    console.log('[MSI] Setting up WIO event listeners')
+    
     wioRef.current
-    .once('connect', () => {
-      console.log('WIO connected from MSI component', wioRef.current)
-      const wio = wioRef.current!
-
-      // Bind with access token and origin
-      console.log('Initiate binding with access token and origin from MSI component', props)
-      wio.emit('bind', {
-        ...props, 
-        origin: 'react-native' 
-      }, ( error: string | boolean ) => {
-        console.log('WIO bind from MSI component', error)
-        if( error ){
-          const errorObj = new Error( typeof error === 'string' ? error : 'Connection failed' )
-          setHasError( true )
-          props.onError?.( errorObj )
-          return
-        }
-
-        setIsConnected( true )
-      })
+    // Handle successful connection
+    .on('connect', async () => {
+      console.log('[MSI] WIO bridge connected')
+      setConnectionAttempts(0)
+      
+      // Perform binding after connection
+      await performBinding()
     })
-    .on('error', ( error: Error | string ) => {
-      console.log('WIO error from MSI component', error)
-      const errorObj = typeof error === 'object' ? error : new Error( error )
-      setHasError( true )
-      props.onError?.( errorObj )
+    // Handle connection timeout
+    .on('connect_timeout', ({ attempts }) => {
+      console.error('[MSI] Connection timeout after', attempts, 'attempts')
+      setConnectionAttempts(attempts)
+      setHasError(true)
+      props.onError?.(new Error(`Failed to connect after ${attempts} attempts`))
     })
+    // Handle reconnection attempts
+    .on('reconnecting', ({ attempt, delay }) => {
+      console.log(`[MSI] Reconnecting (attempt ${attempt}, delay ${delay}ms)`)
+      setIsConnected(false)
+      setIsReady(false)
+    })
+    // Handle reconnection failure
+    .on('reconnection_failed', ({ attempts }) => {
+      console.error('[MSI] Reconnection failed after', attempts, 'attempts')
+      setHasError(true)
+      props.onError?.(new Error(`Reconnection failed after ${attempts} attempts`))
+    })
+    // Handle disconnection
+    .on('disconnect', ({ reason }) => {
+      console.log('[MSI] Disconnected:', reason)
+      setIsConnected(false)
+      setIsReady(false)
+    })
+    // Handle WebView ready event
     .on('ready', () => {
-      console.log('MSI ready', wioRef.current)
+      console.log('[MSI] WebView content ready')
+      setIsReady(true)
       props.onReady?.()
-
-      // Initialize API
-      if( wioRef.current && isConnected && !controlsRef.current ){
-        const
-        controls = new Controls( wioRef.current, props ),
-        handles = new Handles( wioRef.current, controls, props ),
-        plugins = new Plugins( wioRef.current, handles, controls, props )
-        
-        plugins.mount( REGISTERED_PLUGINS )
-
-        controlsRef.current = controls
-        handlesRef.current = handles
-        pluginsRef.current = plugins
-
-        console.log('MSI loaded', controls, handles, plugins)
-        props.onLoaded?.({
-          controls,
-          handles,
-          plugins
-        })
+    })
+    // Handle errors
+    .on('error', ( error: any ) => {
+      console.error('[MSI] WIO error:', error)
+      const errorObj = typeof error === 'object' && error.error 
+        ? new Error(error.error) 
+        : typeof error === 'string'
+          ? new Error(error)
+          : error instanceof Error 
+            ? error 
+            : new Error('Unknown error')
+      
+      // Don't set hasError for rate limiting or non-critical errors
+      if( error.type !== 'RATE_LIMIT_EXCEEDED' ){
+        setHasError(true)
       }
+      
+      props.onError?.(errorObj)
     })
 
     // Handle app state changes
     const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
       if( nextAppState === 'background' ){
-        // Pause updates when app goes to background
-        console.log('App backgrounded - pausing map updates')
+        console.log('[MSI] App backgrounded - pausing map updates')
+        // Optionally emit event to WebView to pause rendering
+        wioRef.current?.emit('app:background')
       }
       else if( nextAppState === 'active' ){
-        // Resume when app comes to foreground
-        console.log('App active - resuming map updates')
+        console.log('[MSI] App active - resuming map updates')
+        wioRef.current?.emit('app:foreground')
+        
+        // Check if we need to reconnect
+        if( !wioRef.current?.isConnected() ){
+          console.log('[MSI] Reconnecting after app resumed')
+          initializeConnection()
+        }
       }
     })
 
     return () => {
+      console.log('[MSI] Cleaning up')
       subscription.remove()
       wioRef.current?.disconnect()
+      isInitializedRef.current = false
     }
   }, [])
 
-  const initialize = () => {
-  }
+  // Initialize API when both connection and ready state are achieved
+  useEffect( () => initializeAPI(), [isConnected, isReady] )
 
   const handleMessage = ( event: any ) => {
+    // Handle console logs separately
+    try {
+      const data = JSON.parse(event.nativeEvent.data)
+      if( data.type === '__console' ){
+        const prefix = '[WebView]'
+        switch( data.level ){
+          case 'log': console.log(prefix, data.message); break
+          case 'error': console.error(prefix, data.message); break
+          case 'warn': console.warn(prefix, data.message); break
+        }
+
+        return
+      }
+    }
+    catch(e){
+      // Not JSON or not console log, pass to WIO
+    }
+    
     wioRef.current?.handleMessage( event )
   }
 
@@ -211,15 +309,16 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         scrollEnabled={false}
         mixedContentMode="always"
         originWhitelist={['*']}
-        onLoadStart={() => console.log('WebView loading...')}
+        onLoadStart={() => console.log('[MSI] WebView loading...')}
         onLoadEnd={() => {
-          console.log('WebView loaded')
-          // initialize()
-          setTimeout(() => wioRef.current?.emit('ping'), 3000 )
+          console.log('[MSI] WebView loaded, initiating connection')
+          // Let WIO handle the connection automatically
+          // Remove the manual ping - it's not needed!
+          initializeConnection()
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
-          console.error('WebView error:', nativeEvent )
+          console.error('[MSI] WebView error:', nativeEvent )
           setHasError( true )
           props.onError?.( new Error( nativeEvent.description || 'WebView error' ) )
         }}
@@ -228,7 +327,12 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       {hasError && (
         <View style={styles.errorOverlay}>
           <View style={styles.errorCard}>
-            {/* Error UI can be added here */}
+            {/* Add error UI with retry button */}
+            <Text style={styles.errorText}>
+              {connectionAttempts > 0 
+                ? `Connection failed after ${connectionAttempts} attempts`
+                : 'An error occurred'}
+            </Text>
           </View>
         </View>
       )}
@@ -255,7 +359,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 12,
-    margin: 20
+    margin: 20,
+    minWidth: 200
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center'
   }
 })
 

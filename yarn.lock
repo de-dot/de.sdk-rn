@@ -4686,10 +4686,10 @@ webidl-conversions@^3.0.0:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
   integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
 
-webview.io@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/webview.io/-/webview.io-1.0.1.tgz#f7780adc10bebd39d72d9b2431c59d915441eed5"
-  integrity sha512-1Zc2nr+ZUkrnsuw8FnvAIquR6zXSDkGsDD9iki6W0KspUVo5E00FFPYbyYieFfj4D3T9LMDNpw/E/Dp+JQt6Ow==
+webview.io@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/webview.io/-/webview.io-1.0.2.tgz#51503c5e0e80d29699829453580c97f4c6b55e1c"
+  integrity sha512-y6Coj+LbXFSxNfHM7vArgJaSvzqJIGDid4x2FhmRyjLI4Mei+oCsnJjfbI/YHMV7Krwb0hK4dHTfYwIAH06xHg==
   dependencies:
     events "^3.3.0"
 
