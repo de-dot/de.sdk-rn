@@ -94,13 +94,35 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       type: 'WEBVIEW',
       debug: props.env === 'dev'
     })
+    
+    // Handle app state changes
+    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
+      if( nextAppState === 'background' ){
+        // Pause updates when app goes to background
+        console.log('App backgrounded - pausing map updates')
+      }
+      else if( nextAppState === 'active' ){
+        // Resume when app comes to foreground
+        console.log('App active - resuming map updates')
+      }
+    })
+
+    return () => {
+      subscription.remove()
+      wioRef.current?.disconnect()
+    }
+  }, [])
+
+  const initialize = () => {
+    if( !wioRef.current )
+      throw new Error('WIO bridge not initiated')
 
     const baseURL = props.env === 'dev' 
       ? 'http://localhost:4800' 
       : 'https://msi.dedot.io'
 
     wioRef.current.initiate( webViewRef, baseURL )
-    
+
     // Setup event listeners
     console.log('Setup event listeners from MSI component')
     wioRef.current
@@ -156,24 +178,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         })
       }
     })
-
-    // Handle app state changes
-    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
-      if( nextAppState === 'background' ){
-        // Pause updates when app goes to background
-        console.log('App backgrounded - pausing map updates')
-      }
-      else if( nextAppState === 'active' ){
-        // Resume when app comes to foreground
-        console.log('App active - resuming map updates')
-      }
-    })
-
-    return () => {
-      subscription.remove()
-      wioRef.current?.disconnect()
-    }
-  }, [])
+  }
 
   const handleMessage = ( event: any ) => {
     wioRef.current?.handleMessage( event )
@@ -197,7 +202,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         domStorageEnabled={true}
         geolocationEnabled={true}
         allowsInlineMediaPlayback={false}
-        cacheEnabled={true}
+        cacheEnabled={false}
         androidLayerType="hardware"
         allowsBackForwardNavigationGestures={false}
         bounces={false}
@@ -207,7 +212,8 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         onLoadStart={() => console.log('WebView loading...')}
         onLoadEnd={() => {
           console.log('WebView loaded')
-          setTimeout(() => wioRef.current?.emit('ping'), 300 )
+          initialize()
+          // setTimeout(() => wioRef.current?.emit('ping'), 300 )
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
