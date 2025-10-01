@@ -56,6 +56,7 @@ function getInjectedConsole(): string {
   `;
 }
 
+let WIO_INJECTED_SCRIPT: string
 const REQUIRED_FEATURES = ['geolocation']
 const REGISTERED_PLUGINS: Record<string, Plugin<any>> = {}
 
@@ -90,33 +91,14 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   useEffect(() => {
     // Initialize WIO bridge
     console.log('Initializing WIO bridge from MSI component')
-    wioRef.current = new WIO({ 
+    wioRef.current = new WIO({
       type: 'WEBVIEW',
       debug: props.env === 'dev'
     })
+
+    // Inject & cache WIO script
+    WIO_INJECTED_SCRIPT = WIO_INJECTED_SCRIPT || wioRef.current.getInjectedJavaScript()
     
-    // Handle app state changes
-    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
-      if( nextAppState === 'background' ){
-        // Pause updates when app goes to background
-        console.log('App backgrounded - pausing map updates')
-      }
-      else if( nextAppState === 'active' ){
-        // Resume when app comes to foreground
-        console.log('App active - resuming map updates')
-      }
-    })
-
-    return () => {
-      subscription.remove()
-      wioRef.current?.disconnect()
-    }
-  }, [])
-
-  const initialize = () => {
-    if( !wioRef.current )
-      throw new Error('WIO bridge not initiated')
-
     const baseURL = props.env === 'dev' 
       ? 'http://localhost:4800' 
       : 'https://msi.dedot.io'
@@ -178,6 +160,28 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         })
       }
     })
+    
+    // Handle app state changes
+    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
+      if( nextAppState === 'background' ){
+        // Pause updates when app goes to background
+        console.log('App backgrounded - pausing map updates')
+      }
+      else if( nextAppState === 'active' ){
+        // Resume when app comes to foreground
+        console.log('App active - resuming map updates')
+      }
+    })
+
+    return () => {
+      subscription.remove()
+      wioRef.current?.disconnect()
+    }
+  }, [])
+
+  const initialize = () => {
+    if( !wioRef.current )
+      throw new Error('WIO bridge not initiated')
   }
 
   const handleMessage = ( event: any ) => {
@@ -197,7 +201,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         source={{ uri: mapUrl }}
         style={styles.webview}
         onMessage={handleMessage}
-        injectedJavaScript={wioRef.current?.getInjectedJavaScript()}
+        injectedJavaScriptBeforeContentLoaded={WIO_INJECTED_SCRIPT}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         geolocationEnabled={true}
