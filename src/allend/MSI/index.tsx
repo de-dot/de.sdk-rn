@@ -124,7 +124,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     // Setup event listeners
     console.log('Setup event listeners from MSI component')
     wioRef.current
-    .once('connect', () => {
+    .on('connect', () => {
       console.log('WIO connected from MSI component', wioRef.current)
       const wio = wioRef.current!
 
