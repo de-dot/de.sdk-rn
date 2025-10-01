@@ -56,6 +56,7 @@ function getInjectedConsole(): string {
   `;
 }
 
+const WIO_PAIR_INJECTED_JAVASCRIPT = new WIO({ type: 'WEBVIEW' }).getInjectedJavaScript()
 const REQUIRED_FEATURES = ['geolocation']
 const REGISTERED_PLUGINS: Record<string, Plugin<any>> = {}
 
@@ -88,13 +89,32 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   }))
 
   useEffect(() => {
+    // Handle app state changes
+    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
+      if( nextAppState === 'background' ){
+        // Pause updates when app goes to background
+        console.log('App backgrounded - pausing map updates')
+      }
+      else if( nextAppState === 'active' ){
+        // Resume when app comes to foreground
+        console.log('App active - resuming map updates')
+      }
+    })
+
+    return () => {
+      subscription.remove()
+      wioRef.current?.disconnect()
+    }
+  }, [])
+
+  const initialize = () => {
     // Initialize WIO bridge
     console.log('Initializing WIO bridge from MSI component')
-    wioRef.current = new WIO({
+    wioRef.current = new WIO({ 
       type: 'WEBVIEW',
       debug: props.env === 'dev'
     })
-    
+
     const baseURL = props.env === 'dev' 
       ? 'http://localhost:4800' 
       : 'https://msi.dedot.io'
@@ -156,26 +176,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         })
       }
     })
-    
-    // Handle app state changes
-    const subscription = AppState.addEventListener('change', ( nextAppState: AppStateStatus ) => {
-      if( nextAppState === 'background' ){
-        // Pause updates when app goes to background
-        console.log('App backgrounded - pausing map updates')
-      }
-      else if( nextAppState === 'active' ){
-        // Force WebView reload in dev
-        webViewRef.current?.reload()
-        // Resume when app comes to foreground
-        console.log('App active - resuming map updates')
-      }
-    })
-
-    return () => {
-      subscription.remove()
-      wioRef.current?.disconnect()
-    }
-  }, [])
+  }
 
   const handleMessage = ( event: any ) => {
     wioRef.current?.handleMessage( event )
@@ -194,13 +195,16 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         source={{ uri: mapUrl }}
         style={styles.webview}
         onMessage={handleMessage}
-        injectedJavaScript={wioRef.current?.getInjectedJavaScript()}
+        injectedJavaScript={`
+          ${getInjectedConsole()}
+          alert('Hello from Remote!');
+          ${WIO_PAIR_INJECTED_JAVASCRIPT}
+        `}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         geolocationEnabled={true}
-        allowsInlineMediaPlayback={false}
-        cacheEnabled={props.env !== 'dev'} // Disable cache in dev
-        incognito={props.env === 'dev'} // Force fresh session in dev
+        allowsInlineMediaPlayback={true}
+        cacheEnabled={true}
         androidLayerType="hardware"
         allowsBackForwardNavigationGestures={false}
         bounces={false}
@@ -210,7 +214,8 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         onLoadStart={() => console.log('WebView loading...')}
         onLoadEnd={() => {
           console.log('WebView loaded')
-          setTimeout(() => wioRef.current?.emit('ping'), 300 )
+          initialize()
+          // setTimeout(() => wioRef.current?.emit('ping'), 300 )
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
