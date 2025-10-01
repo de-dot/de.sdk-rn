@@ -124,7 +124,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     // Setup event listeners
     console.log('Setup event listeners from MSI component')
     wioRef.current
-    .on('connect', () => {
+    .once('connect', () => {
       console.log('WIO connected from MSI component', wioRef.current)
       const wio = wioRef.current!
 
@@ -214,7 +214,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         onLoadEnd={() => {
           console.log('WebView loaded')
           initialize()
-          // setTimeout(() => wioRef.current?.emit('ping'), 300 )
+          setTimeout(() => wioRef.current?.emit('ping'), 500 )
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
