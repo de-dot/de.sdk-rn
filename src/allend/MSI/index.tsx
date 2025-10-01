@@ -4,7 +4,7 @@
  */
 
 import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react'
-import { View, Text, StyleSheet, AppState, AppStateStatus } from 'react-native'
+import { View, Text, StyleSheet, AppState, AppStateStatus, Platform } from 'react-native'
 import { WebView } from 'react-native-webview'
 import WIO from 'webview.io'
 import Controls from './Controls'
@@ -84,6 +84,15 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   const [connectionAttempts, setConnectionAttempts] = useState(0)
   const isInitializedRef = useRef(false)
 
+  // Base URL for MSI
+  const BaseURL = props.env !== 'dev'
+            ? 'https://msi.dedot.io'
+            : Platform.select({
+                android: 'http://10.0.2.2:4800',
+                ios: 'http://localhost:4800',
+                default: 'http://localhost:4800'
+              })
+
   // Expose API via ref
   useImperativeHandle( ref, () => ({
     controls: controlsRef.current!,
@@ -146,12 +155,8 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   const initializeConnection = () => {
     if( !wioRef.current || !webViewRef.current ) return
 
-    const baseURL = props.env === 'dev' 
-      ? 'http://localhost:4800' 
-      : 'https://msi.dedot.io'
-
-    console.log('[MSI] Initiating WIO connection to', baseURL)
-    wioRef.current.initiate( webViewRef, baseURL )
+    console.log('[MSI] Initiating WIO connection to', BaseURL)
+    wioRef.current.initiate( webViewRef, BaseURL )
   }
 
   useEffect(() => {
@@ -281,17 +286,11 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     wioRef.current?.handleMessage( event )
   }
 
-  const
-  baseURL = props.env === 'dev' 
-    ? 'http://localhost:4800' 
-    : 'https://msi.dedot.io',
-  mapUrl = `${baseURL}?token=${props.accessToken}&v=${props.version || 1}`
-
   return (
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
-        source={{ uri: mapUrl }}
+        source={{ uri: `${BaseURL}?token=${props.accessToken}&v=${props.version || 1}` }}
         style={styles.webview}
         onMessage={handleMessage}
         injectedJavaScript={`

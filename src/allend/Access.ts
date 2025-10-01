@@ -16,13 +16,13 @@ export default class Access {
     this.version = options.version || 1
     this.accessToken = options.accessToken
     this.remoteOrigin = options.remoteOrigin
-        this.baseURL = options?.env === 'prod'
-                                    ? 'https://api.dedot.io'
-                                    : Platform.select({
-                                      android: 'http://10.0.2.2:24800',
-                                      ios: 'http://api.dedot.io:24800',
-                                      default: 'http://api.dedot.io:24800'
-                                    })
+    this.baseURL = options?.env !== 'dev'
+                        ? 'https://api.dedot.io'
+                        : Platform.select({
+                          android: 'http://10.0.2.2:24800',
+                          ios: 'http://api.dedot.io:24800',
+                          default: 'http://api.dedot.io:24800'
+                        })
   }
 
   async request<Response>({ url, ...options }: HTTPRequestOptions ): Promise<Response> {
