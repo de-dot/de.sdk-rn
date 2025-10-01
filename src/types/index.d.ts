@@ -21,12 +21,12 @@ export type PickedLocation = {
   }
   coordinates: Coordinates
 }
-export type GPSLocation = Coordinates & {
+export type RTLocation = Coordinates & {
   heading?: number
 }
 export type ActivePosition = {
   id: string
-  position: GPSLocation
+  position: RTLocation
   caption?: Caption
 }
 
@@ -220,7 +220,7 @@ export type Entity = {
   id: string
   status: 'ACTIVE' | 'BUSY'
   grade: '1H' | '2H' | '3H'
-  currentLocation: GPSLocation
+  currentLocation: RTLocation
   static?: boolean
   type: 'moto' | 'car' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
 }
@@ -228,7 +228,7 @@ export type EntitySpecs = {
   id: string
   status: 'ACTIVE' | 'BUSY'
   grade: '1H' | '2H' | '3H'
-  currentLocation: GPSLocation
+  currentLocation: RTLocation
   static?: boolean
   type: 'moto' | 'car' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
 }
@@ -252,7 +252,7 @@ export interface UserLocationOptions {
   accuracyOpacity?: number
   
   // Callbacks
-  onLocationUpdate?: ( location: GPSLocation ) => void
+  onLocationUpdate?: ( location: RTLocation ) => void
   onLocationError?: ( error: GeolocationPositionError ) => void
 }
 export type DragPickOptions = {

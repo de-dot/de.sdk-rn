@@ -1,4 +1,4 @@
-import type { GPSLocation , Message, Peer, OrderStage } from '../../types'
+import type { RTLocation , Message, Peer, OrderStage } from '../../types'
 import type { SocketAuthCredentials } from '../../types/auth'
 import type { AccessOptions } from '../../types/access'
 import io, { Socket } from 'socket.io-client'
@@ -65,7 +65,7 @@ export default class Event extends Access {
     this.nsp?.on('STAGE-CHANGE', fn )
     return this
   }
-  onLocation( fn: ( location: GPSLocation  ) => void ){
+  onLocation( fn: ( location: RTLocation  ) => void ){
     this.nsp?.on('LOCATION-CHANGE', fn )
     return this
   }

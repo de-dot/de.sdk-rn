@@ -1,5 +1,5 @@
 import type { AccessOptions } from '../../types/access'
-import type { HTTPRequestOptions, GPSLocation, OrderService, HTTPResponse, Entity  } from '../../types'
+import type { HTTPRequestOptions, RTLocation, OrderService, HTTPResponse, Entity  } from '../../types'
 import Access from '../Access'
 
 type OrderServiceResponse = HTTPResponse & {
@@ -52,7 +52,7 @@ export default class Client extends Access {
     return orders
   }
 
-  async nearby( location: GPSLocation ){
+  async nearby( location: RTLocation ){
     if( !this.accessToken )
       throw new Error('Authentication required')
 

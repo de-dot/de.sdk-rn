@@ -1,5 +1,5 @@
 import type {
-  GPSLocation,
+  RTLocation,
   Coordinates,
   MapLayerStyle,
   Caption,
@@ -62,12 +62,12 @@ export default class Controls {
   /**
    * @return - User's current GPS location
    */
-  getCurrentLocation(): Promise<GPSLocation | null> {
+  getCurrentLocation(): Promise<RTLocation | null> {
     return new Promise( ( resolve, reject ) => {
       // Set timeout
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
       // Get current location
-      this.chn.emit('get:current:location', ( error: string | boolean, location: GPSLocation ) => {
+      this.chn.emit('get:current:location', ( error: string | boolean, location: RTLocation ) => {
         if( error ) return reject( error )
 
         clearTimeout( timeout )
@@ -631,7 +631,7 @@ export default class Controls {
    * 
    * @param position - Initial GPS location for navigation
    */
-  setInitialNavigationPosition( position: GPSLocation ): Promise<void> {
+  setInitialNavigationPosition( position: RTLocation ): Promise<void> {
     return new Promise( ( resolve, reject ) => {
       // Set timeout
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
@@ -649,7 +649,7 @@ export default class Controls {
    * 
    * @param position - Current GPS location for navigation update
    */
-  navigate( position: GPSLocation ): Promise<void> {
+  navigate( position: RTLocation ): Promise<void> {
     return new Promise( ( resolve, reject ) => {
       // Set timeout
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
@@ -670,7 +670,7 @@ export default class Controls {
    * @param position - (Optional) Current GPS position
    * @params options - Route options
    */
-  casting( routeId: string | number, direction: any, position?: GPSLocation, options?: RouteOptions ): Promise<void> {
+  casting( routeId: string | number, direction: any, position?: RTLocation, options?: RouteOptions ): Promise<void> {
     return new Promise( ( resolve, reject ) => {
       
       // Set timeout

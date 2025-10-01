@@ -1,6 +1,6 @@
 import type {
   Coordinates,
-  GPSLocation,
+  RTLocation,
   Entity,
   MapOptions,
   Caption,
@@ -61,10 +61,10 @@ export default class Handles extends EventEmitter {
     const stream = new Stream()
 
     this.chn
-    .on('current:location', ( location: GPSLocation  ) => stream.sync( location ) )
-    .on('live:location:start', ( location: GPSLocation  ) => stream.sync( location ) )
-    .on('live:location:update', ( location: GPSLocation  ) => stream.sync( location ) )
-    .on('live:location:end', ( location: GPSLocation  ) => stream.sync( location ) )
+    .on('current:location', ( location: RTLocation  ) => stream.sync( location ) )
+    .on('live:location:start', ( location: RTLocation  ) => stream.sync( location ) )
+    .on('live:location:update', ( location: RTLocation  ) => stream.sync( location ) )
+    .on('live:location:end', ( location: RTLocation  ) => stream.sync( location ) )
     .on('current:location:error', ( message: string ) => stream.error( new Error( message ) ) )
 
     // Listen to stream closed
@@ -90,7 +90,7 @@ export default class Handles extends EventEmitter {
    * @param caption - (Optional) Caption information of the peer
    * @return - Readable stream
    */
-  peerLocation( position: GPSLocation , caption?: Caption ){
+  peerLocation( position: RTLocation , caption?: Caption ){
     if( !this.chn ) return
     this.chn?.emit('pin:peer:location', { id: 'peer', position, caption } )
     
@@ -379,7 +379,7 @@ export default class Handles extends EventEmitter {
                       initialize()
 
                       await this.controls?.mountNavigation( journey.routeId )
-                      await this.controls?.setInitialNavigationPosition( position as GPSLocation )
+                      await this.controls?.setInitialNavigationPosition( position as RTLocation )
                     } )
                     .catch( reject )
     } )
