@@ -164,6 +164,8 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         console.log('App backgrounded - pausing map updates')
       }
       else if( nextAppState === 'active' ){
+        // Force WebView reload in dev
+        webViewRef.current?.reload()
         // Resume when app comes to foreground
         console.log('App active - resuming map updates')
       }
@@ -197,7 +199,8 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         domStorageEnabled={true}
         geolocationEnabled={true}
         allowsInlineMediaPlayback={false}
-        cacheEnabled={false}
+        cacheEnabled={props.env !== 'dev'} // Disable cache in dev
+        incognito={props.env === 'dev'} // Force fresh session in dev
         androidLayerType="hardware"
         allowsBackForwardNavigationGestures={false}
         bounces={false}
