@@ -302,23 +302,23 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         domStorageEnabled={true}
         geolocationEnabled={true}
         allowsInlineMediaPlayback={true}
-        cacheEnabled={true}
+        cacheEnabled={props.env !== 'dev'}
+        incognito={props.env === 'dev'}
         androidLayerType="hardware"
         allowsBackForwardNavigationGestures={false}
         bounces={false}
-        scrollEnabled={false}
+        scrollEnabled={props.env === 'dev'}
         mixedContentMode="always"
         originWhitelist={['*']}
         onLoadStart={() => console.log('[MSI] WebView loading...')}
         onLoadEnd={() => {
           console.log('[MSI] WebView loaded, initiating connection')
-          // Let WIO handle the connection automatically
-          // Remove the manual ping - it's not needed!
           initializeConnection()
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
           console.error('[MSI] WebView error:', nativeEvent )
+
           setHasError( true )
           props.onError?.( new Error( nativeEvent.description || 'WebView error' ) )
         }}
@@ -368,10 +368,6 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }
 })
-
-// =====================================================
-// MSI CLASS
-// =====================================================
 
 export class MSIClass {
   private options: MapOptions

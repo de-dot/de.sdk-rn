@@ -150,7 +150,7 @@ export default class Controls {
    * 
    * @param location - (Optional) Initial location for drag pick
    */
-  enableDragPickLocation( location?: Coordinates ): Promise<void> {
+  enableDragPickLocation( location: Coordinates ): Promise<void> {
     return new Promise( ( resolve, reject ) => {
       // Set timeout
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
