@@ -56,7 +56,6 @@ function getInjectedConsole(): string {
   `;
 }
 
-let WIO_INJECTED_SCRIPT: string
 const REQUIRED_FEATURES = ['geolocation']
 const REGISTERED_PLUGINS: Record<string, Plugin<any>> = {}
 
@@ -95,9 +94,6 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       type: 'WEBVIEW',
       debug: props.env === 'dev'
     })
-
-    // Inject & cache WIO script
-    WIO_INJECTED_SCRIPT = WIO_INJECTED_SCRIPT || wioRef.current.getInjectedJavaScript()
     
     const baseURL = props.env === 'dev' 
       ? 'http://localhost:4800' 
@@ -179,11 +175,6 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     }
   }, [])
 
-  const initialize = () => {
-    if( !wioRef.current )
-      throw new Error('WIO bridge not initiated')
-  }
-
   const handleMessage = ( event: any ) => {
     wioRef.current?.handleMessage( event )
   }
@@ -201,7 +192,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         source={{ uri: mapUrl }}
         style={styles.webview}
         onMessage={handleMessage}
-        injectedJavaScriptBeforeContentLoaded={WIO_INJECTED_SCRIPT}
+        injectedJavaScript={wioRef.current?.getInjectedJavaScript()}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         geolocationEnabled={true}
@@ -216,8 +207,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         onLoadStart={() => console.log('WebView loading...')}
         onLoadEnd={() => {
           console.log('WebView loaded')
-          initialize()
-          // setTimeout(() => wioRef.current?.emit('ping'), 300 )
+          setTimeout(() => wioRef.current?.emit('ping'), 300 )
         }}
         onError={( syntheticEvent ) => {
           const { nativeEvent } = syntheticEvent
