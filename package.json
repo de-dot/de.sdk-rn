@@ -37,7 +37,7 @@
   "dependencies": {
     "events": "^3.3.0",
     "socket.io-client": "^4.6.1",
-    "webview.io": "^1.0.5"
+    "webview.io": "^1.0.6"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
