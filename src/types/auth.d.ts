@@ -2,6 +2,7 @@ export type AuthOptions = {
   env?: 'dev' | 'prod'
   version?: number
   autorefresh?: boolean
+  onNewToken?: (token: string) => void
 }
 
 export type AuthCredentials = {
