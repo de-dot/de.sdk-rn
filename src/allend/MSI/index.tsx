@@ -292,7 +292,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         ref={webViewRef}
         source={{ uri: `${BaseURL}?token=${props.accessToken}&v=${props.version || 1}` }}
         style={styles.webview}
-        injectedJavaScriptBeforeContentLoaded={`
+        injectedJavaScript={`
           ${getInjectedConsole()}
           ${WIO_PAIR_INJECTED_JAVASCRIPT}
         `}
