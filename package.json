@@ -1,6 +1,6 @@
 {
   "name": "@de./sdk-rn",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "Complete SDK pack for MSI React Native (Map Service Interface) and DClient services",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
