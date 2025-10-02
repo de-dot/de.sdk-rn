@@ -24,6 +24,7 @@ FUNCTION_EVENT_TIMEOUT_MESSAGE = 'Event timeout'
 export default class Controls {
   private options: MapOptions
   private chn: WIO
+  private accessToken?: string
 
   constructor( chn: WIO, options: MapOptions ){
     this.chn = chn
@@ -31,13 +32,13 @@ export default class Controls {
   }
 
   /**
-   * Refresh access token to remove server
-   * 
+   * Set fresh access token to remote server
+   * @deprecated - Use `options.getAccessToken()` instead
    * @param token - Latest access token
    */
   refreshToken( token: string ){
     if( !token ) return
-    this.options.accessToken = token
+    this.accessToken = token
   }
 
   /**

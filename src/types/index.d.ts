@@ -205,9 +205,9 @@ export type Peer = {
 
 export type MapOptions = {
   element: string
-  accessToken: string
   version?: number
   env?: 'dev' | 'prod'
+  getAccessToken?: () => string
 }
 export type MapLayerStyle = 'streets' | 'outdoors' | 'light' | 'dark' | 'satellite'
 export type MapWaypoint = {
