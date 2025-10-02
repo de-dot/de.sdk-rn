@@ -291,12 +291,11 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
       <WebView
         ref={webViewRef}
         source={{ uri: `${BaseURL}?token=${props.accessToken}&v=${props.version || 1}` }}
-        style={styles.webview}
-        onMessage={handleMessage}
-        injectedJavaScript={`
+        injectedJavaScriptBeforeContentLoaded={`
           ${getInjectedConsole()}
           ${WIO_PAIR_INJECTED_JAVASCRIPT}
         `}
+        style={styles.webview}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         geolocationEnabled={true}
@@ -309,6 +308,7 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
         scrollEnabled={props.env === 'dev'}
         mixedContentMode="always"
         originWhitelist={['*']}
+        onMessage={handleMessage}
         onLoadStart={() => console.log('[MSI] WebView loading...')}
         onLoadEnd={() => {
           console.log('[MSI] WebView loaded, initiating connection')
