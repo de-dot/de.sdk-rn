@@ -133,7 +133,12 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
     
     try {
       // Use emitAsync for better error handling
-      await wioRef.current.emitAsync('bind', { ...props, origin: 'react-native' }, 10000) // 10 second timeout for binding
+      const { getAccessToken, ...config } = props
+      await wioRef.current.emitAsync('bind', { 
+        ...config,
+        origin: 'react-native',
+        accessToken: getAccessToken?.() || ''
+      }, 10000) // 10 second timeout for binding
 
       console.debug('[MSI] Bind successful')
       setIsConnected(true)
