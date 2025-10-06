@@ -13,9 +13,9 @@ import type {
   MapWaypoint,
   Journey,
   RouteOptions,
-  ActiveDirection
+  RoutesFitBoundsOptions
 } from '../../types'
-import WIO from 'webview.io'
+import WIO, { Listener } from 'webview.io'
 
 const 
 FUNCTION_EVENT_TIMEOUT = 12000,
@@ -29,6 +29,25 @@ export default class Controls {
   constructor( chn: WIO, options: MapOptions ){
     this.chn = chn
     this.options = options
+  }
+
+  /**
+   * Listen to MSI events
+   */
+  on( event: string, listener: Listener ){
+    this.chn.on( event, listener )
+  }
+  /**
+   * Remove a listener of MSI events
+   */
+  off( event: string, listener: Listener ){
+    this.chn.off( event, listener )
+  }
+  /**
+   * Remove all listen of MSI events
+   */
+  removeListeners( listener: Listener ){
+    this.chn.removeListeners( listener )
   }
 
   /**
@@ -509,6 +528,44 @@ export default class Controls {
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
       // Remove route waypoint
       this.chn.emit('remove:route:waypoint', { routeId, index }, ( error: string | boolean ) => {
+        if( error ) return reject( error )
+
+        clearTimeout( timeout )
+        resolve()
+      } )
+    } )
+  }
+
+  /**
+   * Fit route bounds
+   * 
+   * @param routeId - Route identifier
+   * @param margin - Margin in px
+   */
+  fitRouteBounds( routeId: string, margin?: number ): Promise<void> {
+    return new Promise( ( resolve, reject ) => {
+      // Set timeout
+      const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
+      
+      this.chn.emit('fit:route:bounds', { routeId, margin }, ( error: string | boolean ) => {
+        if( error ) return reject( error )
+
+        clearTimeout( timeout )
+        resolve()
+      } )
+    } )
+  }
+  /**
+   * Fit all/many routes bounds
+   * 
+   * @param options - Routes fit bounds options
+   */
+  fitRoutesBounds( options: RoutesFitBoundsOptions ): Promise<void> {
+    return new Promise( ( resolve, reject ) => {
+      // Set timeout
+      const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
+      
+      this.chn.emit('fit:routes:bounds', options, ( error: string | boolean ) => {
         if( error ) return reject( error )
 
         clearTimeout( timeout )

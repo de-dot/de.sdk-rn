@@ -97,6 +97,12 @@ export type ActiveDirection = {
   waypoints: Coordinates[]
   route: any
 }
+
+export type RouteID = string | number
+export type RoutesFitBoundsOptions = {
+	includes?: RouteID[]
+	margin?: number
+}
 export type RouteOptions = {
   id?: string | number
   mode?: 'default' | 'navigation'
