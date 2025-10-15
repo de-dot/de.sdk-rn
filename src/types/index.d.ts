@@ -89,13 +89,13 @@ export type Journey = {
   waypoints?: MapWaypoint[]
   options?: RouteOptions
 }
-export type ActiveDirection = {
+export type ActiveDirection<RouteSpec> = {
   routeId: string | number
   profile: string
   origin?: Coordinates
   destination?: Coordinates
   waypoints: Coordinates[]
-  route: any
+  route: RouteSpec | null
 }
 
 export type RouteID = string | number
