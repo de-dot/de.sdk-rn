@@ -1,5 +1,5 @@
 export type AuthOptions = {
-  env?: 'dev' | 'prod'
+  env: 'dev' | 'prod'
   version?: number
   autorefresh?: boolean
   onNewToken?: (token: string) => void
