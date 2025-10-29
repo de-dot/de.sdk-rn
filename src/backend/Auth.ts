@@ -22,7 +22,7 @@ export default class Auth {
 
   constructor( creds: AuthCredentials, options?: AuthOptions ){
     if( !creds ) throw new Error('Undefined Credentials. Check https://doc.dedot.io/sdk/auth')
-    if( !creds.workspace ) throw new Error('Undefined Workspace Reference. Check https://doc.dedot.io/sdk/auth')
+    if( !creds.context ) throw new Error('Undefined Context Reference. Check https://doc.dedot.io/sdk/auth')
     if( !creds.remoteOrigin ) throw new Error('Undefined Remote Origin. Check https://doc.dedot.io/sdk/auth')
     if( !creds.cid ) throw new Error('Undefined Connector ID. Check https://doc.dedot.io/sdk/auth')
     if( !creds.secret ) throw new Error('Undefined Connector Secret. Check https://doc.dedot.io/sdk/auth')

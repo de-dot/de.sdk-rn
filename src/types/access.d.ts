@@ -1,7 +1,7 @@
 export type AccessOptions = {
   env: 'dev' | 'prod'
   version?: number
-  workspace: string
+  context: string
   accessToken: string
   remoteOrigin?: string
 }

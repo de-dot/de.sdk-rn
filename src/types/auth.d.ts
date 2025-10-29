@@ -6,7 +6,7 @@ export type AuthOptions = {
 }
 
 export type AuthCredentials = {
-  workspace: string
+  context: string
   remoteOrigin: string
   cid: string
   secret: string
