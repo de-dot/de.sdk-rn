@@ -82,7 +82,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/intent',
       method: 'DELETE',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message } = await this.request<HTTPResponse>( options )
     if( error ) throw new Error( message )
@@ -106,7 +106,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/waypoints/add',
       method: 'PUT',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: !Array.isArray( list ) ? [ list ] : list
     },
     { error, message, waypoints } = await this.request<WaypointsResponse>( options )
@@ -126,7 +126,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/waypoints/${no}`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, waypoint } = await this.request<WaypointResponse>( options )
     if( error ) throw new Error( message )
@@ -143,7 +143,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/waypoints`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, waypoints } = await this.request<WaypointsResponse>( options )
     if( error ) throw new Error( message )
@@ -165,7 +165,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/waypoints/${no}`,
       method: 'PATCH',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: updates
     },
     { error, message, waypoints } = await this.request<WaypointsResponse>( options )
@@ -185,7 +185,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/waypoints/${no}`,
       method: 'DELETE',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, waypoints } = await this.request<WaypointsResponse>( options )
     if( error ) throw new Error( message )
@@ -208,7 +208,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/packages/add',
       method: 'PUT',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: !Array.isArray( list ) ? [ list ] : list
     },
     { error, message, packages } = await this.request<PackagesResponse>( options )
@@ -228,7 +228,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/packages/${PTC}`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     response = await this.request<PackageResponse>( options )
     if( response.error )
@@ -245,7 +245,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/packages`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, packages } = await this.request<PackagesResponse>( options )
     if( error ) throw new Error( message )
@@ -267,7 +267,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/packages/${PTC}`,
       method: 'PATCH',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: updates
     },
     { error, message, packages } = await this.request<PackagesResponse>( options )
@@ -287,7 +287,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/packages/${PTC}`,
       method: 'DELETE',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, packages } = await this.request<PackagesResponse>( options )
     if( error ) throw new Error( message )
@@ -310,7 +310,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/service',
       method: 'POST',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: payload
     },
     { error, message, jrtoken } = await this.request<JRTokenResponse>( options )
@@ -327,7 +327,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/service`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, service } = await this.request<OrderServiceResponse>( options )
     if( error ) throw new Error( message )
@@ -346,7 +346,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/service`,
       method: 'PATCH',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: updates
     },
     { error, message, service } = await this.request<OrderServiceResponse>( options )
@@ -366,7 +366,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/service/rating`,
       method: 'POST',
-      headers: { 'x-intent-token': token },
+      headers: { 'de-intent-token': token },
       body: { rating }
     },
     { error, message } = await this.request<HTTPResponse>( options )
@@ -390,7 +390,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: `/order/operators?type=${type}`,
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, operators } = await this.request<OrderOperatorsResponse>( options )
     if( error ) throw new Error( message )
@@ -406,7 +406,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/operators',
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, operators } = await this.request<OrderOperatorsResponse>( options )
     if( error ) throw new Error( message )
@@ -426,7 +426,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/stage',
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, stage } = await this.request<OrderStageResponse>( options )
     if( error ) throw new Error( message )
@@ -442,7 +442,7 @@ export default class Order extends Access {
     options: HTTPRequestOptions = {
       url: '/order/route',
       method: 'GET',
-      headers: { 'x-intent-token': token }
+      headers: { 'de-intent-token': token }
     },
     { error, message, route } = await this.request<CurrentRouteResponse>( options )
     if( error ) throw new Error( message )

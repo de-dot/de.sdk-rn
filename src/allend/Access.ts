@@ -24,7 +24,7 @@ export default class Access {
       method: 'GET',
       headers: {
         origin: this.remoteOrigin,
-        'x-user-agent': `De.remote/${this.version}.0`
+        'de-user-agent': `De.remote/${this.version}.0`
       }
     }
 

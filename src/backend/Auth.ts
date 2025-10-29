@@ -46,7 +46,7 @@ export default class Auth {
          * NOTE: Later replace by latest SDK version
          */
         'origin': this.creds.remoteOrigin,
-        'x-user-agent': `De.remote/${this.version}.0`
+        'de-user-agent': `De.remote/${this.version}.0`
       }
     }
 
