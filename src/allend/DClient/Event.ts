@@ -2,14 +2,14 @@ import type { RTLocation , Message, Peer, OrderStage } from '../../types'
 import type { SocketAuthCredentials } from '../../types/auth'
 import type { AccessOptions } from '../../types/access'
 import io, { Socket } from 'socket.io-client'
-import Access from '../Access'
+import AccessManager from '../Access'
 
-export default class Event extends Access {
+export default class Event extends AccessManager {
   private nsp?: Socket
   private iosHost: string
 
   constructor( access: AccessOptions ){
-    super( access )
+    super( access, 'API' )
     
     // Socket server host
     this.iosHost = access.env == 'prod' ?

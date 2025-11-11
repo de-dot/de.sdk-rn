@@ -1,6 +1,6 @@
 import type { AccessOptions } from '../../types/access'
 import type { HTTPRequestOptions, RTLocation, OrderService, HTTPResponse, Entity  } from '../../types'
-import Access from '../Access'
+import AccessManager from '../Access'
 
 type OrderServiceResponse = HTTPResponse & {
   orders: OrderService[]
@@ -9,7 +9,7 @@ type NearbyResponse = HTTPResponse & {
   nearby: Entity[]
 }
 
-export default class Client extends Access {
+export default class Client extends AccessManager {
   private clientId: string
 
   constructor( clientId: string, access: AccessOptions ){
@@ -17,7 +17,7 @@ export default class Client extends Access {
       throw new Error('Undefined <clientId>')
 
     // Instanciate access
-    super( access )
+    super( access, 'API' )
     // ID/reference of the client on this session
     this.clientId = clientId
   }

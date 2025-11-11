@@ -5,7 +5,7 @@ import type {
   Waypoint, WaypointOptions,
   OrderService, OrderServiceOptions, OrderOperator, OrderStage
 } from '../../types'
-import Access from '../Access'
+import AccessManager from '../Access'
 
 type IntentTokenResponse = HTTPResponse & {
   token: string
@@ -44,11 +44,11 @@ type CurrentRouteResponse = HTTPResponse & {
   route: any
 }
 
-export default class Order extends Access {
+export default class Order extends AccessManager {
   private intentToken: string // Active order's intent token
 
   constructor( access: AccessOptions ){
-    super( access )
+    super( access, 'API' )
     
     this.intentToken = ''
   }
