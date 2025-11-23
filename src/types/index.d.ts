@@ -114,6 +114,12 @@ export type RouteOptions = {
   animation?: AnimatedRouteOptions
 }
 
+export type SearchPlaceSuggestion = {
+  id: string
+  name: string
+  description: string
+  distance: number | null
+}
 export type SearchPlace = {
   name: string
   location: Coordinates,
