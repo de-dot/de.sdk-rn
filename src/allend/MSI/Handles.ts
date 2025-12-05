@@ -18,10 +18,16 @@ import Stream from '../../utils/stream'
 export interface ControlEntity {
   add: ( entity: Entity, callback?: () => void ) => void
   remove: ( id: string, callback?: () => void ) => void
+  focus: ( id: string, callback?: () => void ) => void
   move: ( update: ActivePosition, callback?: () => void ) => void
 }
 export type LRSControlsListener = ( controls: ControlEntity ) => void
 export type LRSErrorListener = ( error?: Error | boolean ) => void
+export interface LRStreamer {
+  live: ( fn: LRSControlsListener ) => Stream
+  close: ( fn?: LRSErrorListener ) => void
+  pipe: ( stream: Stream ) => void
+}
 
 export default class Handles extends EventEmitter {
   private chn: WIO
@@ -119,7 +125,7 @@ export default class Handles extends EventEmitter {
    * @param list - List of detected nearby entities around this user.
    * @return - Live Readable Stream (LRS)
    */
-  nearby( list: Entity[] ){
+  nearby( list: Entity[] ): LRStreamer | void {
     if( !this.chn ) return
 
     const self = this
@@ -175,7 +181,7 @@ export default class Handles extends EventEmitter {
           // Track response timeout
           let TIMEOUT: any
 
-          list = list.filter( each => { return each.id !== id } )
+          list = list.filter( each => each.id !== id )
           self.chn?.emit('remove:nearby:entity', id, () => {
             clearTimeout( TIMEOUT )
             resolve()
@@ -184,6 +190,33 @@ export default class Handles extends EventEmitter {
           } )
 
           setTimeout( () => reject('Remove entity timeout'), 8000 )
+        } )
+      },
+
+      /**
+       * Focus/pan map to an entity (vehicle, premises) of the nearby list
+       * 
+       * @param id - ID of targeted entity
+       */
+      focus( id ): Promise<void> {
+        return new Promise( ( resolve, reject ) => {
+          if( _CLOSED ) return
+          
+          // Track response timeout
+          let TIMEOUT: any
+
+          const entity = list.find( each => each.id === id )
+          if( !entity )
+            return reject(`Entity <${id}> not found`)
+
+          self.chn?.emit('panto:map:location', entity.currentLocation, () => {
+            clearTimeout( TIMEOUT )
+            resolve()
+
+            self.emit('nearby--stream', 'panto', id )
+          } )
+
+          setTimeout( () => reject('PanTo entity timeout'), 8000 )
         } )
       },
       
