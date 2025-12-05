@@ -411,7 +411,7 @@ export default class Controls {
    * 
    * @param routeId - Route identifier
    */
-  drawRoute( routeId: string, data: Array<LngLat>, options: RouteOptions ): Promise<void> {
+  drawRoute( routeId: string, data: Array<LngLat>, options?: RouteOptions ): Promise<void> {
     return new Promise( ( resolve, reject ) => {
       // Set timeout
       const timeout = setTimeout( () => reject( FUNCTION_EVENT_TIMEOUT_MESSAGE ), FUNCTION_EVENT_TIMEOUT )
