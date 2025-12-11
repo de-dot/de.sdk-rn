@@ -5,29 +5,18 @@ import type {
   MapOptions,
   Caption,
   Journey,
-  ActivePosition,
   PickedLocation,
-  RouteOptions
+  RouteOptions,
+  ControlEntity,
+  LRSControlsListener,
+  LRSErrorListener,
+  LRStreamer
 } from '../../types'
 
 import WIO from 'webview.io'
 import { EventEmitter } from 'events'
 import Controls from './Controls'
 import Stream from '../../utils/stream'
-
-export interface ControlEntity {
-  add: ( entity: Entity, callback?: () => void ) => void
-  remove: ( id: string, callback?: () => void ) => void
-  focus: ( id: string, callback?: () => void ) => void
-  move: ( update: ActivePosition, callback?: () => void ) => void
-}
-export type LRSControlsListener = ( controls: ControlEntity ) => void
-export type LRSErrorListener = ( error?: Error | boolean ) => void
-export interface LRStreamer {
-  live: ( fn: LRSControlsListener ) => Stream
-  close: ( fn?: LRSErrorListener ) => void
-  pipe: ( stream: Stream ) => void
-}
 
 export default class Handles extends EventEmitter {
   private chn: WIO
@@ -222,24 +211,33 @@ export default class Handles extends EventEmitter {
       
       /**
        * Change mobile entities position on the map
-       * 
-       * @param location - New GPS location of the entity
        */
-      move( location ): Promise<void> {
+      move( active ): Promise<void> {
         return new Promise( ( resolve, reject ) => {
           if( _CLOSED ) return
           
           // Track response timeout
           let TIMEOUT: any
           
-          self.chn?.emit('move:nearby:entity', location, () => {
+          self.chn?.emit('move:nearby:entity', active, () => {
             clearTimeout( TIMEOUT )
+
+            const entity = list.find( each => each.id === active.id )
+            if( !entity )
+              throw new Error(`Undefined <${active.id}> entity`)
+
+            entity.currentLocation = active.position
+
+            if( active.focus )
+              try { controls.focus( active.id ) }
+              catch( error ){}
+
             resolve()
 
-            self.emit('nearby--stream', 'move', location )
+            self.emit('nearby--stream', 'move', active )
           } )
 
-          setTimeout( () => reject('Remove entity timeout'), 8000 )
+          setTimeout( () => reject('Move entity timeout'), 8000 )
         } )
       }
     }

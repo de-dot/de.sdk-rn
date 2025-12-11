@@ -28,6 +28,7 @@ export type ActivePosition = {
   id: string
   position: RTLocation
   caption?: Caption
+  focus?: boolean
 }
 
 /**
@@ -234,15 +235,20 @@ export type Entity = {
   grade: '1H' | '2H' | '3H'
   currentLocation: RTLocation
   static?: boolean
-  type: 'moto' | 'car' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
+  type: 'moto' | 'car' | 'bus' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
 }
-export type EntitySpecs = {
-  id: string
-  status: 'ACTIVE' | 'BUSY'
-  grade: '1H' | '2H' | '3H'
-  currentLocation: RTLocation
-  static?: boolean
-  type: 'moto' | 'car' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
+export interface ControlEntity {
+  add: ( entity: Entity, callback?: () => void ) => void
+  remove: ( id: string, callback?: () => void ) => void
+  focus: ( id: string, callback?: () => void ) => void
+  move: ( update: ActivePosition, callback?: () => void ) => void
+}
+export type LRSControlsListener = ( controls: ControlEntity ) => void
+export type LRSErrorListener = ( error?: Error | boolean ) => void
+export interface LRStreamer {
+  live: ( fn: LRSControlsListener ) => Stream
+  close: ( fn?: LRSErrorListener ) => void
+  pipe: ( stream: Stream ) => void
 }
 
 export interface UserLocationOptions {
