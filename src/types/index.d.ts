@@ -229,13 +229,16 @@ export type MapWaypoint = {
   caption?: Caption
 }
 
+export type MobileEntityType = 'person' | 'moto' | 'car' | 'bus' | 'bike' | 'truck' | 'plane' | 'ship'
+export type StaticEntityType = 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
+export type EntityType = MobileEntityType | StaticEntityType
 export type Entity = {
   id: string
+  type: EntityType
   status: 'ACTIVE' | 'BUSY'
   grade: '1H' | '2H' | '3H'
   currentLocation: RTLocation
   static?: boolean
-  type: 'moto' | 'car' | 'bus' | 'bike' | 'truck' | 'plane' | 'ship' | 'restaurant' | 'hotel' | 'store' | 'office' | 'warehouse'
 }
 export interface ControlEntity {
   add: ( entity: Entity, callback?: () => void ) => void
