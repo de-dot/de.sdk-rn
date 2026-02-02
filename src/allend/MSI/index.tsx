@@ -83,9 +83,9 @@ export default forwardRef<MSIRef, MSIProps>(( props, ref ) => {
   const BaseURL = props.env !== 'dev'
             ? 'https://msi.dedot.io'
             : Platform.select({
-                android: 'http://10.0.2.2:4800',
-                ios: 'http://localhost:4800',
-                default: 'http://localhost:4800'
+                android: `http://${props.devHostname || '10.0.2.2'}:4800`,
+                ios: `http://${props.devHostname || 'localhost'}:4800`,
+                default: `http://${props.devHostname || 'localhost'}:4800`
               })
 
   // Expose API via ref

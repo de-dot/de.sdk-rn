@@ -1,6 +1,6 @@
 import type { AccessOptions } from '../types/access'
 import type { HTTPRequestOptions } from '../types'
-import { API_SERVER_BASEURL, ASI_SERVER_BASEURL } from '../baseUrl'
+import baseURL from '../baseUrl'
 
 type AccessType = 'API' | 'ASI'
 
@@ -24,6 +24,8 @@ export default class AccessManager {
     this.platform = options.platform || 'proxy'
     this.accessToken = options.accessToken
     this.remoteOrigin = options.remoteOrigin
+
+    const { ASI_SERVER_BASEURL, API_SERVER_BASEURL } = baseURL( options.devHostname )
     this.baseURL = this.atype === 'ASI'
               ? ASI_SERVER_BASEURL[ options.env || 'dev' ] 
               : API_SERVER_BASEURL[ options.env || 'dev' ]

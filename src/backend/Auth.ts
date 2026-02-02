@@ -1,5 +1,5 @@
 import type { AuthCredentials, AuthOptions, AuthRequestOptions } from '../types/auth'
-import { API_SERVER_BASEURL } from '../baseUrl'
+import baseURL from '../baseUrl'
 
 const ACCESS_TOKEN_EXPIRY = 3.75 // in 3 minutes 45 seconds
 
@@ -29,9 +29,11 @@ export default class Auth {
 
     this.creds = creds
     this.options = options || { env: 'dev' }
-    
     this.version = this.options.version || 1
+
+    const { API_SERVER_BASEURL } = baseURL( this.options.devHostname )
     this.baseURL = API_SERVER_BASEURL[ this.options.env || 'dev' ]
+
     this.autorefresh = this.options.autorefresh || false
     this.onNewToken = this.options.onNewToken
   }

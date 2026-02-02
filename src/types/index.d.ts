@@ -220,6 +220,7 @@ export type MapOptions = {
   element: string
   version?: number
   env?: 'dev' | 'prod'
+  devHostname?: string
   getAccessToken?: () => string
 }
 export type MapLayerStyle = 'streets' | 'outdoors' | 'light' | 'dark' | 'satellite'

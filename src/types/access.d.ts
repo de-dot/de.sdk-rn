@@ -5,4 +5,5 @@ export type AccessOptions = {
   context: string
   accessToken: string
   remoteOrigin?: string
+  devHostname?: string
 }
