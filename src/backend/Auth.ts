@@ -6,7 +6,9 @@ const ACCESS_TOKEN_EXPIRY = 3.75 // in 3 minutes 45 seconds
 type AuthResponse = {
   error: boolean
   message: string
-  token: string
+  data: {
+    token: string
+  }
 }
 
 export default class Auth {
@@ -103,13 +105,13 @@ export default class Auth {
       method: 'POST',
       body: this.creds
     },
-    { error, message, token } = await this.request<AuthResponse>( options )
+    { error, message, data } = await this.request<AuthResponse>( options )
     if( error ) throw new Error( message )
 
-    this.accessToken = token
+    this.accessToken = data.token
     this.scheduleRotation() // Schedule auto-refresh
     
-    return token
+    return data.token
   }
 
   async rotateToken(): Promise<string> {
@@ -131,21 +133,21 @@ export default class Auth {
         method: 'PATCH',
         body: { secret: this.creds.secret }
       },
-      { error, message, token } = await this.request<AuthResponse>( options )
+      { error, message, data } = await this.request<AuthResponse>( options )
       if( error ) throw new Error( message )
 
-      this.accessToken = token
+      this.accessToken = data.token
 
       // Notify callback listener
       if( typeof this.onNewToken === 'function' )
-        try { this.onNewToken( token ) }
+        try { this.onNewToken( data.token ) }
         catch( callbackError ){ this.error('[Auth] Error in onNewToken callback:', callbackError) }
 
       // Schedule next rotation
       this.scheduleRotation()
       
       this.debug('Token rotated successfully')
-      return token
+      return data.token
     }
     catch( error: any ){
       this.debug('Refresh access token failed:', error.message)
