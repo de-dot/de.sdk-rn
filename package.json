@@ -35,6 +35,7 @@
     "test:event": "yarn build:tsc && jest test/event.test.js"
   },
   "dependencies": {
+    "@de./types": "^1.0.0",
     "events": "^3.3.0",
     "socket.io-client": "^4.6.1",
     "webview.io": "^1.0.6"
